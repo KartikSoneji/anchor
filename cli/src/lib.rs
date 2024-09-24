@@ -54,6 +54,17 @@ pub mod config;
 pub mod rust_template;
 pub mod solidity_template;
 
+// npm and yarn command names
+#[cfg(windows)]
+pub const NPM_COMMAND: &str = "npm.cmd";
+#[cfg(windows)]
+pub const YARN_COMMAND: &str = "yarn.cmd";
+
+#[cfg(not(windows))]
+pub const NPM_COMMAND: &str = "npm";
+#[cfg(not(windows))]
+pub const YARN_COMMAND: &str = "yarn";
+
 // Version of the docker image.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const DOCKER_BUILDER_VERSION: &str = VERSION;
@@ -735,7 +746,7 @@ fn restore_toolchain(restore_cbs: RestoreToolchainCallbacks) -> Result<()> {
 
 /// Get the system's default license - what 'npm init' would use.
 fn get_npm_init_license() -> Result<String> {
-    let npm_init_license_output = std::process::Command::new("npm")
+    let npm_init_license_output = std::process::Command::new(NPM_COMMAND)
         .arg("config")
         .arg("get")
         .arg("init-license")
@@ -1064,10 +1075,10 @@ fn init(
     )?;
 
     if !no_install {
-        let yarn_result = install_node_modules("yarn")?;
+        let yarn_result = install_node_modules(YARN_COMMAND)?;
         if !yarn_result.status.success() {
             println!("Failed yarn install will attempt to npm install");
-            install_node_modules("npm")?;
+            install_node_modules(NPM_COMMAND)?;
         }
     }
 
